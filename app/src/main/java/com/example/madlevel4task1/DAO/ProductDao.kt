@@ -1,7 +1,5 @@
 package com.example.madlevel4task1.DAO
 
-import android.os.Parcel
-import android.os.Parcelable
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -11,7 +9,7 @@ import com.example.madlevel4task1.Model.Product
 @Dao
 interface ProductDao {
 
-    @Query("SELECT * FROM product_table")
+    @Query("SELECT * FROM productTable")
     suspend fun getAllProducts(): List<Product>
 
     @Insert
@@ -20,7 +18,7 @@ interface ProductDao {
     @Delete
     suspend fun deleteProduct(product: Product)
 
-    @Query("DELETE FROM product_table")
+    @Query("DELETE FROM productTable")
     suspend fun deleteAllProducts()
 
 }
