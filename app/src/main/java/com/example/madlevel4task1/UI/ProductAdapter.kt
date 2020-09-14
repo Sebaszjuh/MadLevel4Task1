@@ -1,14 +1,15 @@
-package com.example.madlevel4task1
+package com.example.madlevel4task1.UI
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.madlevel4task1.Model.Product
+import com.example.madlevel4task1.R
 import kotlinx.android.synthetic.main.item_product.view.*
 
-class ShoppingListAdapter(private val products: List<Product>) :
-    RecyclerView.Adapter<ShoppingListAdapter.ViewHolder>()  {
+class ProductAdapter(private val products: List<Product>) :
+    RecyclerView.Adapter<ProductAdapter.ViewHolder>()  {
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
@@ -20,7 +21,7 @@ class ShoppingListAdapter(private val products: List<Product>) :
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShoppingListAdapter.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
             LayoutInflater.from(parent.context).inflate(R.layout.item_product, parent, false)
         )
