@@ -14,7 +14,7 @@ class ProductAdapter(private val products: List<Product>) :
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         fun databind(product: Product) {
-            itemView.productName.text = product.product
+            itemView.productName.text = product.productName
 
             // Find fix for integer instead of toString
             itemView.productQuantity.text = product.amount.toString()
