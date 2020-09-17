@@ -34,7 +34,6 @@ class ShoppingFragment : Fragment() {
     private val productsList = arrayListOf<Product>()
     private val productAdapter = ProductAdapter(productsList)
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -50,6 +49,13 @@ class ShoppingFragment : Fragment() {
 
         initViews()
 
+        fb_add_product.setOnClickListener {
+            showAddProductdialog();
+        }
+
+        fb_remove_all.setOnClickListener {
+            removeAllProducts()
+        }
     }
 
     private fun initViews() {
@@ -70,10 +76,11 @@ class ShoppingFragment : Fragment() {
     }
 
     private fun createItemTouchHelper(): ItemTouchHelper {
-
+        // Callback which is used to create the ItemTouch helper. Only enables left swipe.
+        // Use ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) to also enable right swipe.
         val callback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 
-            //Not used right now
+            // Enables or Disables the ability to move items up and down.
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
@@ -82,11 +89,10 @@ class ShoppingFragment : Fragment() {
                 return false
             }
 
-            //Removes on swipe left
+            // Callback triggered when a user swiped an item.
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.adapterPosition
                 val productToDelete = productsList[position]
-
                 CoroutineScope(Dispatchers.Main).launch {
                     withContext(Dispatchers.IO) {
                         productRepository.deleteProduct(productToDelete)
@@ -98,18 +104,68 @@ class ShoppingFragment : Fragment() {
         return ItemTouchHelper(callback)
     }
 
-
     private fun getProductsFromDatabase() {
         CoroutineScope(Dispatchers.Main).launch {
-            val reminders = withContext(Dispatchers.IO) {
+            val shoppingList = withContext(Dispatchers.IO) {
                 productRepository.getAllProducts()
             }
             this@ShoppingFragment.productsList.clear()
-            this@ShoppingFragment.productsList.addAll(productsList)
+            this@ShoppingFragment.productsList.addAll(shoppingList)
             this@ShoppingFragment.productAdapter.notifyDataSetChanged()
         }
     }
 
+    @SuppressLint("InflateParams")
+    private fun showAddProductdialog() {
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle(getString(R.string.add_product_dialog_title))
+        val dialogLayout = layoutInflater.inflate(R.layout.add_product_dialog, null)
+        val productName = dialogLayout.findViewById<EditText>(R.id.et_product_name)
+        val amount = dialogLayout.findViewById<EditText>(R.id.et_amount)
 
+        builder.setView(dialogLayout)
+        builder.setPositiveButton(R.string.dialog_ok_btn) { _: DialogInterface, _: Int ->
+            addProduct(productName, amount)
+        }
+        builder.show()
+    }
 
+    private fun addProduct(txtProductName: EditText, txtAmount: EditText) {
+        if (validateFields(txtProductName, txtAmount)) {
+            CoroutineScope(Dispatchers.Main).launch {
+                val product = Product(
+                    productName = txtProductName.text.toString(),
+                    amount = txtAmount.text.toString().toInt()
+                )
+
+                withContext(Dispatchers.IO) {
+                    productRepository.insertProduct(product)
+                }
+
+                getProductsFromDatabase()
+            }
+        }
+    }
+
+    private fun validateFields(
+        txtProductName: EditText, txtAmount: EditText
+    ): Boolean {
+        return if (txtProductName.text.toString().isNotBlank()
+            && txtAmount.text.toString().isNotBlank()
+        ) {
+            true
+        } else {
+            Toast.makeText(activity, "Please fill in the fields", Toast.LENGTH_LONG).show()
+            false
+        }
+    }
+
+    private fun removeAllProducts() {
+        CoroutineScope(Dispatchers.Main).launch {
+            withContext(Dispatchers.IO) {
+                productRepository.deleteAllProducts()
+            }
+            getProductsFromDatabase()
+        }
+    }
 }

@@ -8,6 +8,5 @@
     <fragment
         android:id="@+id/FirstFragment"
         android:name="com.example.madlevel4task1.UI.ShoppingFragment"
-        android:label="@string/first_fragment_label"
-        tools:layout="@layout/fragment_shopping"/>
+        tools:layout="@layout/fragment_shopping" />
 </navigation>
